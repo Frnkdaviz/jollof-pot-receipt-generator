@@ -1,0 +1,25 @@
+{
+  "name": "jollof-pot-receipt-generator",
+  "version": "1.0.0",
+  "description": "Professional receipt generator for Jollof Pot Restaurant with Ghana tax compliance",
+  "main": "index.html",
+  "scripts": {
+    "dev": "echo 'Open index.html in your browser'",
+    "start": "echo 'Open index.html in your browser'"
+  },
+  "keywords": [
+    "receipt",
+    "generator",
+    "ghana",
+    "restaurant",
+    "VAT",
+    "tax",
+    "jollof-pot"
+  ],
+  "author": "Jollof Pot Restaurant",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/frnkdaviz/jollof-pot-receipt.git"
+  }
+}
