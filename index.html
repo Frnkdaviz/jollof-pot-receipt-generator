@@ -358,6 +358,31 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
 
+        .print-btn {
+            width: 100%;
+            padding: 1rem;
+            background: white;
+            color: var(--dark);
+            border: 2px solid var(--dark);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-top: 0.75rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .print-btn:hover {
+            background: var(--dark);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
         @media print {
             body {
                 background: white;
@@ -366,7 +391,7 @@
             .container {
                 grid-template-columns: 1fr;
             }
-            .input-section, .download-btn {
+            .input-section, .download-btn, .print-btn {
                 display: none;
             }
             .receipt {
@@ -591,6 +616,10 @@
             <button class="download-btn" onclick="downloadReceipt()">
                 <span style="font-size: 1.2rem;">📥</span> Download Receipt (PDF)
             </button>
+            
+            <button class="print-btn" onclick="printReceipt()">
+                <span style="font-size: 1.2rem;">🖨️</span> Print Receipt
+            </button>
         </div>
     </div>
 
@@ -776,24 +805,52 @@
                 scale: 2,
                 useCORS: true,
                 logging: false,
-                backgroundColor: '#ffffff'
+                backgroundColor: '#ffffff',
+                windowWidth: receipt.scrollWidth,
+                windowHeight: receipt.scrollHeight
             }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
                 
                 // Create PDF with jsPDF
                 const { jsPDF } = window.jspdf;
+                
+                // Calculate dimensions
+                const imgWidth = 190; // A4 width in mm minus margins
+                const pageHeight = 277; // A4 height in mm minus margins
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                // Calculate how many pages we need
+                let heightLeft = imgHeight;
+                let position = 10; // Top margin
+                
+                // Create PDF with proper size
                 const pdf = new jsPDF({
                     orientation: 'portrait',
                     unit: 'mm',
                     format: 'a4'
                 });
                 
-                const imgWidth = 190; // A4 width in mm minus margins
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                // Add first page
+                pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
                 
-                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+                // Add additional pages if needed
+                while (heightLeft > 0) {
+                    position = heightLeft - imgHeight + 10; // Add negative offset
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+                
                 pdf.save(`Jollof-Pot-Receipt-${receiptNo}.pdf`);
+            }).catch(error => {
+                console.error('Error generating PDF:', error);
+                alert('Error generating PDF. Please try again or use Print option.');
             });
+        }
+
+        function printReceipt() {
+            window.print();
         }
 
         // Initialize date input with current date/time
